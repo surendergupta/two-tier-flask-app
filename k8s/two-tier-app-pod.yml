@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: two-tier-app-pod
+spec:
+  containers:
+  - name: two-tier-app-container
+    image: surendergupta/flaskapp:latest
+    env:
+        - name: MYSQL_HOST
+          vaule: "mysql"
+        - name: MYSQL_USER
+          value: "root"
+        - name: MYSQL_PASSWORD
+          vaule: "admin"
+        - name: MYSQL_DB
+          vaule: "mydb"
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    ports:
+      - containerPort: 5000
+    imagePullPolicy: Always

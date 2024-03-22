@@ -1,0 +1,92 @@
+sudo apt-get update
+sudo apt install docker.io
+sudo chown $USER /var/run/docker.sock
+docker ps
+git clone https://github.com/surendergupta/two-tier-flask-app.git
+cd two-tier-flask-app/
+ls
+vim Dockerfile
+
+docker build . -t flaskapp
+docker images
+docker run -d -p 5000:5000 flaskapp:latest
+docker run -d -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD="admin" mysql:5.7
+docker ps
+docker network create twotier
+docker kill 0c13df7ce6da
+docker kill a78506009d31
+docker ps
+docker run -d -p 5000:5000 --network=twotier -e MYSQL_HOST=mysql -e MYSQL_USER=admin -e MYSQL_PASSWORD=admin -e MYSQL_DB=myDb flaskapp:latest
+docker run -d -p 3306:3306 --network=twotier -e MYSQL_DATABASE=myDb -e MYSQL_USER=admin -e MYSQL_PASSWORD=admin -e MYSQL_ROOT_PASSWORD=admin mysql:5.7
+docker ps
+docker network ls
+docker network inspect twotier
+docker ps
+docker kill 9ee6c79e9c65 434f1bb697c4
+docker ps
+docker run -d -p 5000:5000 --network=twotier -e MYSQL_HOST=mysql -e MYSQL_USER=admin -e MYSQL_PASSWORD=admin -e MYSQL_DB=myDb --name=flaskapp flaskapp:latest
+docker run -d -p 3306:3306 --network=twotier -e MYSQL_DATABASE=myDb -e MYSQL_USER=admin -e MYSQL_PASSWORD=admin -e MYSQL_ROOT_PASSWORD=admin --name=mysql mysql:5.7
+docker rm 0c13df7ce6da9303aee5b84761faefcf7ed174afce781fe6dda97cb90cabba1d
+docker run -d -p 3306:3306 --network=twotier -e MYSQL_DATABASE=myDb -e MYSQL_USER=admin -e MYSQL_PASSWORD=admin -e MYSQL_ROOT_PASSWORD=admin --name=mysql mysql:5.7
+docker network inspect twotier
+docker ps
+docker exec -it 8327fb2dac7b bash
+    (mysql -u root
+    password:
+    login Success
+    show databases:
+    use myDb;
+    CREATE TABLE messages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        message TEXT
+    );
+    SELECT * FROM message;
+
+    exit;
+    exit;)
+docker images
+docker login
+    username: <YOUR_DOCKER_HUB_USERNAME>
+    password: <YOUR_DOCKER_HUB_PASSWORD>
+
+docker tag flaskapp:latest surendergupta/flaskapp:latest
+docker images
+docker push surendergupta/flaskapp:latest
+sudo apt install docker-compose
+sudo nano docker-compose.yml
+    version: "3"
+    services:
+        backend:
+            image: surendergupta/flaskapp:latest
+            ports:
+            - "5000:5000"
+            environment:
+            - MYSQL_HOST=mysql
+            - MYSQL_USER=admin
+            - MYSQL_PASSWORD=admin
+            - MYSQL_DB=myDb
+            depends_on:
+            - mysql
+
+        mysql:
+            image: mysql:5.7
+            environment:
+            - MYSQL_DATABASE=myDb
+            - MYSQL_USER=admin
+            - MYSQL_PASSWORD=admin
+            - MYSQL_ROOT_PASSWORD=admin
+            ports: 
+            - "3306:3306"
+            volumes:
+            - ./message.sql:/docker-entrypoint-initdb.d/message.sql
+            - mysql-data:/var/lib/mysql
+
+    volumes:
+        mysql-data:
+
+
+docker ps
+docker kill 8327fb2dac7b 3d792e2a3899
+docker rm 8327fb2dac7b 3d792e2a3899
+docker compose up -d
+docker-compose down

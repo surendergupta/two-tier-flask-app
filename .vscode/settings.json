@@ -1,0 +1,5 @@
+{
+    "yaml.schemas": {
+        "https://json.schemastore.org/sourcehut-build-0.41.2.json": "file:///f%3A/DevOps/two_tier_app/two-tier-flask-app/k8s/two-tier-app-pod.yml"
+    }
+}

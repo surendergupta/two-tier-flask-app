@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: two-tier-app-deployment
+  labels:
+    app: two-tier-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: two-tier-app
+  template:
+    metadata:
+      labels:
+        app: two-tier-app
+    spec:
+      containers:
+      - name: two-tier-app
+        image: surendergupta/flaskapp:latest
+        env:
+          - name: MYSQL_HOST
+            vaule: "mysql" # 10.99.2.221 your mysql cluster ip 
+          - name: MYSQL_USER
+            value: "root"
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: password
+          - name: MYSQL_DB
+            vaule: "mydb"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+          - containerPort: 5000
+        imagePullPolicy: Always
